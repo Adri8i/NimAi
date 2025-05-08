@@ -56,7 +56,7 @@ class NimAI():
         float: The Q-value associated with the (state, action) pair. 
                Returns 0 if the pair is not yet in the Q-table.
     """
-        print(self.q)
+        return self.q[(state,action)]
 
     def update_q_value(self, state, action, old_q, reward, future_q):
         """
@@ -69,6 +69,7 @@ class NimAI():
         reward (float): The reward received after taking the action.
         future_q (float): The maximum Q-value for the next state.
     """
+        alpha = self.alpha
         raise NotImplementedError
     
     def best_future_reward(self, state):
