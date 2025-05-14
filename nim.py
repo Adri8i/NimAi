@@ -56,7 +56,8 @@ class NimAI():
         float: The Q-value associated with the (state, action) pair. 
                Returns 0 if the pair is not yet in the Q-table.
     """
-        return self.q[(state,action)]
+        state_tuple = tuple(state)
+        return self.q.get((state_tuple, action), 0)
 
     def update_q_value(self, state, action, old_q, reward, future_q):
         """
@@ -69,8 +70,10 @@ class NimAI():
         reward (float): The reward received after taking the action.
         future_q (float): The maximum Q-value for the next state.
     """
-        alpha = self.alpha
-        raise NotImplementedError
+        state_tuple = tuple(state)
+        new_q = old_q + self.alpha * (reward + future_q - old_q)
+        self.q[(state_tuple, action)] = new_q
+
     
     def best_future_reward(self, state):
             """
@@ -83,7 +86,11 @@ class NimAI():
         float: The highest Q-value among available actions. 
                Returns 0 if no actions are available.
     """
-            raise NotImplementedError
+            actions = Nim.available_actions(state)
+            if not actions:
+                return 0
+            return max(self.get_q_value(state, action) for action in actions)
+
 
     def choose_action(self, state, epsilon=True):
         """
@@ -96,7 +103,17 @@ class NimAI():
     Returns:
         tuple: The chosen action from the available actions.
     """
-        raise NotImplementedError
+        if random.random() < self.epsilon if epsilon else 0:
+            # Exploration: Wähle eine zufällige Aktion
+            actions = Nim.available_actions(state)
+            action = random.choice(list(actions))
+        else:
+            # Exploitation: Wähle die beste bekannte Aktion
+            actions = Nim.available_actions(state)
+            best_action = max(actions, key=lambda action: self.get_q_value(state, action))
+            action = best_action
+
+        return action
 
 def train(n):
     player = NimAI()
